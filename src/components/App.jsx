@@ -6,52 +6,50 @@
 import { useEffect, useState } from "react";
 //import axios from "axios";
 //import Article from "./Article.jsx";
-//import Loader from "./Loader.jsx";
-//import Error from "./Error.jsx";
+import Loader from "./Loader.jsx";
+import Error from "./Error.jsx";
 //import SearchForm from "./SearchForm.jsx";
-import { useRef } from "react";
-import Player from "./Player.jsx";
+import ArticleList from "./ArticleList.jsx";
+import axios from "axios";
 
-import { forwardRef } from "react";
 
-// ComponentA.jsx
-const ComponentA = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const App = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
 
-  const closeModal = () => setIsModalOpen(false);
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          "https://hn.algolia.com/api/v1/search?query=react"
+        );
+        setArticles(response.data.hits);
+      } catch (error) {
+				// Встановлюємо стан error в true
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchArticles();
+  }, []);
+
 
   return (
-    <>
-      <button onClick={openModal}>Open modal</button>
-      <Modal isOpen={isModalOpen} onClose={closeModal} />
-    </>
+    <div>
+      <h1>Latest articles</h1>
+      {loading && <Loader />}
+      {error && <Error/> }
+      {articles.length > 0 && <ArticleList items={articles} />}
+    </div>
   );
 };
-
-// ComponentB.jsx
-const ComponentB = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  const openSidebar = () => setIsSidebarOpen(true);
-
-  const closeSidebar = () => setIsSidebarOpen(false);
-
-  return (
-    <>
-      <button onClick={openSidebar}>Open sidebar</button>
-      <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
-    </>
-  );
-};
-
-
-
 
 export default App;
-
-
 
 /*// src/components/App.jsx
 
